@@ -1,0 +1,25 @@
+{
+	"accounts": [
+		{
+			"id": "-1", 
+			"username": "Outside World", 
+			"discriminator": "0", 
+			"balance": [], 
+			"disabled": false
+		}, 
+		{
+			"id": "0", 
+			"username": "Government of Discordia", 
+			"discriminator": "0", 
+			"balance": [
+				{
+					"item": "DCP", 
+					"unit": "Peso", 
+					"amount": 1000000
+				}
+			], 
+			"disabled": false
+		}
+	], 
+	"transactions": []
+}
