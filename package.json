@@ -1,0 +1,10 @@
+{
+	"name": "Erisal",
+	"version": "1.0.0",
+	"dependencies": {
+		"discord.js": "^12.5.1",
+		"extractjs": "^0.3.1",
+		"node-cron": "^3.0.0",
+		"sqlite3": "^5.0.2"
+	}
+}
