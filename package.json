@@ -1,0 +1,9 @@
+{
+	"name": "Eris",
+	"version": "1.0.0",
+	"dependencies": {
+		"discord-backup": "^3.0.1",
+		"discord.js": "^13.6.0",
+		"sqlite3": "^5.0.2"
+	}
+}

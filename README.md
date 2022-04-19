@@ -1,53 +1,87 @@
 # The Eris Bot
 
-A Discord bot developed and maintained throughout the course of a few months for a Discord server that I was in. 
+A Discord bot developed and maintained throughout the course of a few months for a Discord server that I was in. It has been rewritten to be used in a different Discord server than before. You can still access the repository for the older version [here](https://github.com/Ivan-Law-Kin-Chau/eris-old). 
 
 ## Technologies Used
 
  - Node.js
- - Redux
  - Sqlite3
- - node-cron
 
 ## Main Features
 
- - CRUD with items and a custom currency called DCP that can be traded between users
- - A time system, with a different speed than real world time, that keeps track of farms, health bars and other stuff that will be affected by time through cooldowns or decaying
- - Pseudo-real time duels between two users via reacting to a message, where the illusion of it being in pseudo-real time is maintained through constantly editing the same message
- - A cron job to keep the database's list of users in sync with that of the Discord server
- - The full list of commands are below: 
+This Discord bot has an advanced parser that can generate an abstract syntax tree from user input. This is because I had an ambitious vision during the early stages of developing this Discord bot. I planned to create a domain specific programming language for rights using the Hohfeldian analysis of rights model. The Hohfeldian analysis of rights is a way to conceptualize rights into different parts. A programming language that implements this model can then be used to simulate anything from a shop to a system of giving people degrees to a way to allow bankers to tax other people within the Discord server, as in the following examples: 
+
+```
+# A shop
+make contract shop {
+	auto as seller {
+		if has 1 bread
+		give 1 bread
+	} with as bread_buyer {
+		if has 5 dollar
+		give 5 dollar
+	}
+}
+```
+
+```
+# A system of giving people degrees
+make contract "Bachelor of Political Science" {
+	auto government {
+		create 1 "Bachelor of Political Science"
+	} with as recipient
+}
+```
+
+```
+# A way to allow bankers to tax other people within the Discord server
+make contract tax {
+	auto government {
+		create 1 "right to tax"
+	} with auto as banker
+	
+	auto everyone {
+		not create 1 "right to tax"
+	} with auto everyone
+	
+	auto as banker {
+		not give 1 "right to tax"
+	} with auto everyone
+	
+	as banker {
+		if has 1 "right to tax"
+	} with auto as citizen {
+		give 100 dollar
+	}
+}
+```
+
+Other people in the Discord server could then make commands using this programming language to set up rights without me having to get involved every time. However, I did not have the time to create this programming language in its entirety and eventually abandoned this bot in the middle of developing it. That is why this bot has a far more advanced parser than the features that this bot currently exposes to its users would necessitate. Anyhow, here are the list of commands for this bot: 
 
 ### List of Commands
 
-**Basic Commands**
-   - **!e help** - Display the list of commands
-   - **!e help advanced** - Display the list of commands (advanced), which is for enterprise usage or for the Dungeon Master
-   - **!e time** - Get the current time in Discordia
-   - **!e health** - Check how many HP you have
-   - **!e respawn** - Respawn if you died
-   - **!e dia pesos** - Claim your Dia Pesos
-   - **!e farm "Grant, New Mexico"** - Farm in a county where you have Exclusive Farming Rights to get grains
+Here is the list of available commands: 
 
-**Using the Items that You Already Have**
-   - **!e inventory** - View your item inventory
-   - **!e give <@388283764322729984> 123 [**number**]** - Give items to another citizen
-   - **!e eat [**number**]** - Eat a food item to get more HP
+**!e help** - See this message. 
 
-### List of Commands (Advanced)
+**!e time** - See the current time in Discordia. 
 
-**Getting More Items and Getting Rid of Them**
-   - **!e import [**DCP/item**]** - Import items from the overseas
-   - **!e export [**DCP/item**]** - Export items to the overseas
-   - **!e pack 100x3 [**DCP/item**]** - Pack 100 calories into a food item, times 3 times
-   - **!e unpack 100x3 [**DCP/item**]** - Unpack 100 calories from a food item, times 3 times
+**!e balance** - See your current balance. 
 
-**Syntax for [DCP/Items]**
+**!e budget** - See the government's current balance. 
 
-The standard syntax has 3 arguments: **[**amount**]** **[**unit**]** **[**item**]**. For example... 
-   - **1 Loaf Bread** - Item with unit
-   - **1 Cake** - Item without unit
-   - **123 Peso DCP** - DCP is treated like any other item
-   - **1 Ton "Mongolian Iron"** - If an argument contains spaces, delimit it with brackets (for more complex delimitation than that, use standard JavaScript delimitation rules)
+**!e give {person} {number}** - Send your $D to someone. 
 
-**Dungeon Master Only Commands**
-   - **!e attempt 0.2 "assassinate the president"** - Determine whether or not an attempt to perform an action outside the limits of the constitution and laws is successful
+**!e reward {person/role} {number} "{reason (optional)}"** - Send the government's $D to people\*. 
+
+**!e charge {person/role} {number} "{reason (optional)}"** - Send people's $D to the government\*. 
+
+**!e print {number}** - Print new $D for the government\*. 
+
+**!e burn {number}** - Burn depreciated $D held by the government\*. 
+
+**!e dice {probability of success (from 0 to 100 percent)} "{action}"** - Let fate decide whether an extrajudicial action is successful or not\*\*. 
+
+\* Only for Presidents, Judges, Bankers, Police Officers and Dungeon Masters. 
+
+\*\* Only for Dungeon Masters. 

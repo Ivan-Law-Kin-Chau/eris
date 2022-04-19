@@ -1,72 +1,58 @@
-erisID = "";
-masterID = "";
-centralServer = "";
-broadcastChannel = "";
-deadChannel = "";
-deadRole = "";
+const listOfIds = {
+	erisID: "", 
+	rootServer: "", 
+	rewardChargeLogs: "", 
+	fiscalAuthorizers: {
+		judge: "", 
+		president: "", 
+		dungeonMaster: "", 
+		banker: "", 
+		policeOfficer: ""
+	}
+};
 
-basicFunctions = require(".\/basic.js");
-parseFunctions = require(".\/parse.js");
-timeFunctions = require(".\/time.js");
-foodFunctions = require(".\/food.js");
-cacheFunctions = require(".\/cache.js");
-itemFunctions = require(".\/item.js");
-storeFunctions = require(".\/store.js");
-fightFunctions = require(".\/fight.js");
+const Discord = require("discord.js");
+const intents = new Discord.Intents(32767);
+const client = new Discord.Client({ intents });
+const store = require(".\/store.js");
 
-createStore = require("redux").createStore;
-store = createStore(storeFunctions.handler);
-store.dispatch({
-	"type": "initialize"
-});
-
-client = new (require("discord.js")).Client();
 client.login("");
 client.on("ready", function () {
 	console.log("The bot has been started. ");
-});
-
-mode = "deadTesting";
-specialEvent = require(".\/event.js");
-cron = require("node-cron");
-
-cron.schedule("0 * * * * *", function () {
-	client.guilds.cache.get(centralServer).members.fetch().then(function (users) {
-		list = [];
+	client.guilds.cache.get(listOfIds.rootServer).members.fetch().then(function (users) {
+		userList = [];
 		users.forEach(function (user) {
-			if (user.user.bot === false) {
-				list[list.length] = [user.user.id, user.user.username, user.user.discriminator];
-			}
+			userList.push({
+				id: user.user.id, 
+				bot: user.user.bot
+			});
 		});
-		store.dispatch({
-			"type": "update", 
-			"current": list
-		});
+		store.setUserList(userList);
+		store.handler();
+	});
+	
+	serverBackuper = require("discord-backup");
+	serverBackuper.setStorageFolder(__dirname + "/backups/");
+	serverBackuper.create(client.guilds.cache.get(listOfIds.rootServer)).then(function (serverBackup) {
+		console.log("Server backup created: " + serverBackup.id);
 	});
 });
 
-client.on("messageReactionAdd", function (reaction, user) {
-	for (index = 0; index < fightFunctions.fightObjects.length; index++) {
-		if (fightFunctions.fightObjects[index].message.id === reaction.message.id) {
-			for ([key, value] of reaction.users.cache) {
-				sender = key;
-			}
-			
-			if (sender !== erisID) {
-				number = fightFunctions.getNumberByEmoji(reaction.emoji.name);
-				fightFunctions.trigger(index, number, sender);
-				fightFunctions.fightObjects[index].message.reactions.resolve(reaction.emoji.name).users.remove(sender);
-			}
-		}
-	}
-});
+const Environment = require(".\/environment.js");
+const runtimeEnvironment = new Environment(store);
+runtimeEnvironment.loadContracts();
 
-client.on("message", function (message) {
-	if (message.content.charAt(0) !== "!") return;
-	if (!(message.channel.id !== deadChannel || message.content === "!e respawn" || message.author.id === masterID || mode === "deadTesting")) return;
-	if (message.guild.id === specialEvent.serverID && mode === "event") {
-		specialEvent.execute(message);
-	} else {
-		basicFunctions.execute(message);
+client.on("messageCreate", function (message) {
+	if (message.content.startsWith("!e ")) {
+		try {
+			const parsedScript = require(".\/parse.js").parse(message.content);
+			console.log(message.author.id, JSON.stringify(parsedScript, "\t", 4));
+			parsedScript.content.forEach(function (line) {
+				runtimeEnvironment.evaluate(client, message, line.content, message.content, listOfIds);
+			});
+		} catch (error) {
+			console.log(error);
+			message.reply("Syntax error! ");
+		}
 	}
 });
