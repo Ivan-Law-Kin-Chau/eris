@@ -13,7 +13,7 @@ const listOfIds = {
 
 const Discord = require("discord.js");
 const intents = new Discord.Intents(32767);
-const client = new Discord.Client({ intents });
+const client = new Discord.Client({intents});
 const store = require(".\/store.js");
 
 client.login("");
@@ -29,6 +29,10 @@ client.on("ready", function () {
 		});
 		store.setUserList(userList);
 		store.handler();
+		
+		userList.forEach(user => {
+			if (user.bot === false) store.getBalance(user.id, balance => console.log(`<@${user.id}> - ${balance} DCP`));
+		});
 	});
 	
 	serverBackuper = require("discord-backup");
@@ -40,16 +44,13 @@ client.on("ready", function () {
 
 const Environment = require(".\/environment.js");
 const runtimeEnvironment = new Environment(store);
-runtimeEnvironment.loadContracts();
 
 client.on("messageCreate", function (message) {
 	if (message.content.startsWith("!e ")) {
 		try {
-			const parsedScript = require(".\/parse.js").parse(message.content);
-			console.log(message.author.id, JSON.stringify(parsedScript, "\t", 4));
-			parsedScript.content.forEach(function (line) {
-				runtimeEnvironment.evaluate(client, message, line.content, message.content, listOfIds);
-			});
+			const line = require(".\/parse.js").parse(message.content);
+			console.log(message.author.id, JSON.stringify(line, "\t", 4));
+			runtimeEnvironment.evaluate(client, message, line, listOfIds);
 		} catch (error) {
 			console.log(error);
 			message.reply("Syntax error! ");

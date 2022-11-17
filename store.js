@@ -4,7 +4,7 @@ module.exports = {
 	setUserList: function (userList = null) {
 		module.exports.userList = userList;
 	}, 
-	getBalance: function (userId, callback, name = "$D") {
+	getBalance: function (userId, callback, name = "DCP") {
 		module.exports.database.all(`SELECT * FROM transactions WHERE name = "${name}" AND (agent = "${userId}" OR receiver = "${userId}")`, function (error, rows) {
 			let balance = 0;
 			for (let i = 0; i < rows.length; i++) {
@@ -14,7 +14,7 @@ module.exports = {
 			callback(balance);
 		});
 	}, 
-	transact: function (callback, timeStamp, amount, agent, receiver, authorizer = null, name = "$D") {
+	transact: function (callback, timeStamp, amount, agent, receiver, authorizer = null, name = "DCP") {
 		for (let i = 0; i < module.exports.userList.length; i++) {
 			if ((module.exports.userList[i].id === agent && module.exports.userList[i].bot === true) || (module.exports.userList[i].id === receiver && module.exports.userList[i].bot === true)) {
 				callback(false);
