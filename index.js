@@ -1,12 +1,14 @@
 const listOfIds = {
 	erisID: "", 
+	erisRoleID: "", 
+	governmentRoleID: "", 
 	rootServer: "", 
-	rewardChargeLogs: "", 
+	transferLogs: "", 
 	fiscalAuthorizers: {
 		judge: "", 
 		president: "", 
 		dungeonMaster: "", 
-		banker: "", 
+		ministerOfFinance: "", 
 		policeOfficer: ""
 	}
 };
