@@ -14,6 +14,36 @@ module.exports = {
 			callback(balance);
 		});
 	}, 
+	automaticallyTransact: function (client, listOfIds) {
+		const currentTime = Math.floor((new Date()).getTime());
+		const convertToText = id => {
+			if (id === "-1") return `<@&1046514022566072371>`;
+			if (id === "0") return `<@1032097268091867147>`;
+			return `<@${id}>`;
+		};
+		
+		module.exports.database.all(`SELECT * FROM schedules WHERE minimum_time_stamp < "${currentTime}" AND maximum_time_stamp > "${currentTime}"`, function (error, rows) {
+			for (let i = 0; i < rows.length; i++) {
+				const recordTime = parseInt(rows[i]["minimum_time_stamp"]) + (parseInt(rows[i]["cycle_length"]) * rows[i]["current_x"]);
+				const requiredIterations = Math.floor((currentTime - recordTime) / parseInt(rows[i]["cycle_length"]));
+				if (requiredIterations > 0) {
+					let x = rows[i]["current_x"];
+					let totalAmount = 0;
+					for (let j = 0; j < requiredIterations; j++) {
+						totalAmount += parseInt(eval(rows[i]["amount"]));
+						x++;
+					}
+					
+					module.exports.database.all(`UPDATE schedules SET current_x = ${x} WHERE minimum_time_stamp = "${rows[i]["minimum_time_stamp"]}" AND maximum_time_stamp = "${rows[i]["maximum_time_stamp"]}" AND cycle_length = "${rows[i]["cycle_length"]}"`, function (error) {
+						if (error === null) module.exports.transact(function (value) {
+							client.channels.cache.get(listOfIds.rewardChargeLogs).send(`${convertToText(rows[i]["agent"])} has just transferred ${rows[i]["amount"]} DCP to ${convertToText(rows[i]["receiver"])}, for ${requiredIterations} time${requiredIterations > 1 ? "s" : ""}, due to an automated schedule. `);
+							client.channels.cache.get(listOfIds.rewardChargeLogs).send(`**Reason provided: **${rows[i]["reason"]}`);
+						}, currentTime.toString(), totalAmount, rows[i]["agent"], rows[i]["receiver"], rows[i]["authorizer"], rows[i]["name"]);
+					});
+				}
+			}
+		});
+	}, 
 	transact: function (callback, timeStamp, amount, agent, receiver, authorizer = null, name = "DCP") {
 		for (let i = 0; i < module.exports.userList.length; i++) {
 			if ((module.exports.userList[i].id === agent && module.exports.userList[i].bot === true) || (module.exports.userList[i].id === receiver && module.exports.userList[i].bot === true)) {

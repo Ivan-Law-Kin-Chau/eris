@@ -26,6 +26,10 @@ module.exports = class Environment {
 			this.store.getBalance("-1", function (budget) {
 				message.reply(`The government currently has a total of ${budget} DCP. `);
 			});
+		} else if (this.tokenIs(line[0], "demo") && line.length === 1) {
+			require(".\/chart.js")(function (dataURL) {
+				message.reply(`https://cingjue.org/bot/charts/${dataURL}`);
+			});
 		} else if (this.tokenIs(line[0], "give") && line.length === 3) {
 			const environment = this;
 			if (!environment.tokenIs(line[1], null, "account_id")) {
@@ -87,7 +91,7 @@ module.exports = class Environment {
 							} else if (value === true && noReply === false) {
 								message.reply(`They are rewarded successfully. `);
 								client.channels.cache.get(listOfIds.rewardChargeLogs).send(`<@${message.author.id}> has just rewarded <@${target}> ${line[2].content} DCP. `);
-								if (environment.tokenIs(line[3], null, "string")) {
+								if (environment.tokenIs(line[3], null)) {
 									client.channels.cache.get(listOfIds.rewardChargeLogs).send(`**Reason provided: **${line[3].content}`);
 								}
 							}
@@ -101,7 +105,7 @@ module.exports = class Environment {
 							} else if (value === true && noReply === false) {
 								message.reply(`They are charged successfully. `);
 								client.channels.cache.get(listOfIds.rewardChargeLogs).send(`<@${message.author.id}> has just charged <@${target}> ${line[2].content} DCP. `);
-								if (environment.tokenIs(line[3], null, "string")) {
+								if (environment.tokenIs(line[3], null)) {
 									client.channels.cache.get(listOfIds.rewardChargeLogs).send(`**Reason provided: **${line[3].content}`);
 								}
 							}
@@ -125,13 +129,13 @@ module.exports = class Environment {
 					if (environment.tokenIs(line[0], "reward")) {
 						message.reply(`Everyone has been rewarded successfully. `);
 						client.channels.cache.get(listOfIds.rewardChargeLogs).send(`<@${message.author.id}> has just rewarded all members of the <@&${line[1].content}> role ${line[2].content} DCP each. `);
-						if (environment.tokenIs(line[3], null, "string")) {
+						if (environment.tokenIs(line[3], null)) {
 							client.channels.cache.get(listOfIds.rewardChargeLogs).send(`**Reason provided: **${line[3].content}`);
 						}
 					} else if (environment.tokenIs(line[0], "charge")) {
 						message.reply(`Everyone has been charged successfully. `);
 						client.channels.cache.get(listOfIds.rewardChargeLogs).send(`<@${message.author.id}> has just charged all members of the <@&${line[1].content}> role ${line[2].content} DCP each. `);
-						if (environment.tokenIs(line[3], null, "string")) {
+						if (environment.tokenIs(line[3], null)) {
 							client.channels.cache.get(listOfIds.rewardChargeLogs).send(`**Reason provided: **${line[3].content}`);
 						}
 					}

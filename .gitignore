@@ -1,4 +1,8 @@
+backup.sql
+backups/
+charts/
+database.db
 node_modules/
 package-lock.json
+secrets.json
 sqlite3.exe
-backups/

@@ -1,8 +1,5 @@
 module.exports = {
 	parse: function (input = "") {
-		// Handle tabs
-		input = input.split("\t").join(" ");
-		
 		// Remove the initial !e
 		input = input.substring(3);
 		
