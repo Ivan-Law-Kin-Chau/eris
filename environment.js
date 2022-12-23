@@ -45,7 +45,25 @@ module.exports = class Environment {
 	
 	evaluate (client, message, line, listOfIds) {
 		if (this.tokenIs(line[0], "help") && line.length === 1) {
-			message.reply(`Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance** - See your current balance. \n**!e budget** - See the government's current balance. \n**!e give {person} {number}** - Send your DCP to someone. \n**!e reward {person/role} {number} "{reason (optional)}"** - Send the government's DCP to people\\*. \n**!e charge {person/role} {number} "{reason (optional)}"** - Send people's DCP to the government\\*. \n**!e print {number}** - Print new DCP for the government\\*. \n**!e burn {number}** - Burn depreciated DCP held by the government\\*. \n**!e dice {probability of success (from 0 to 100 percent)} "{action}"** - Let fate decide whether an extrajudicial action is successful or not\\*\\*. \n\\* Only for Presidents, Judges, Bankers, Police Officers and Dungeon Masters. \n\\*\\* Only for Dungeon Masters. `);
+			let version = 0;
+			this.authorize(client, message, listOfIds, () => {
+				version = 1;
+				this.authorize(client, message, listOfIds, () => {
+					version = 2;
+				}, true);
+			});
+			
+			let replyMessage = `Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance** - See your current balance. \n**!e budget** - See the government's current balance. \n**!e give {person} {number}** - Send your DCP to someone. `;
+			
+			if (version >= 1) {
+				replyMessage += `\n\nBecause you are a President, Judge, Banker, Police Officer or Dungeon Master, you can also use these commands: **!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
+			}
+			
+			if (version >= 2) {
+				replyMessage += `\n\nBecause you are a Dungeon Master, you can also use these commands: **!e dice {probability of success (from 0 to 100 percent)} "{action}"** - Let fate decide whether an extrajudicial action is successful or not. `;
+			}
+			
+			message.reply(replyMessage);
 		} else if (this.tokenIs(line[0], "time") && line.length === 1) {
 			let daysElapsed = Math.floor((new Date()).getTime() / 86400000) - 19036;
 			let currentTime = {year: 1984 + Math.floor(daysElapsed / 12), month: 0 + (daysElapsed % 12)};
