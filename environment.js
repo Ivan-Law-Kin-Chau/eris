@@ -10,7 +10,7 @@ module.exports = class Environment {
 		return true;
 	}
 	
-	authorize (client, message, listOfIds, callback, dungeonMasterMode = false) {
+	authorize (client, message, listOfIds, callback, sayAccessDenied = true, dungeonMasterMode = false) {
 		if (message.guild.id !== listOfIds.rootServer) {
 			message.reply(`Server not recognized! `);
 			return;
@@ -30,16 +30,12 @@ module.exports = class Environment {
 			message.guild.roles.cache.get(listOfIds.fiscalAuthorizers.dungeonMaster).members.forEach(roleMember => {
 				if (roleMember.user.id === message.author.id) authorized = true;
 			});
-		} else {
-			message.reply(`Fatal error! `);
 		}
 		
-		if (authorized === false) {
+		if (authorized === false && sayAccessDenied === true) {
 			message.reply(`Access denied! `);
 		} else if (authorized === true) {
 			callback();
-		} else {
-			message.reply(`Fatal error! `);
 		}
 	}
 	
@@ -50,17 +46,17 @@ module.exports = class Environment {
 				version = 1;
 				this.authorize(client, message, listOfIds, () => {
 					version = 2;
-				}, true);
-			});
+				}, false, true);
+			}, false);
 			
 			let replyMessage = `Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance** - See your current balance. \n**!e budget** - See the government's current balance. \n**!e give {person} {number}** - Send your DCP to someone. `;
 			
 			if (version >= 1) {
-				replyMessage += `\n\nBecause you are a President, Judge, Banker, Police Officer or Dungeon Master, you can also use these commands: **!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
+				replyMessage += `\n\nBecause you are a President, Judge, Banker, Police Officer or Dungeon Master, you can also use these commands: \n**!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
 			}
 			
 			if (version >= 2) {
-				replyMessage += `\n\nBecause you are a Dungeon Master, you can also use these commands: **!e dice {probability of success (from 0 to 100 percent)} "{action}"** - Let fate decide whether an extrajudicial action is successful or not. `;
+				replyMessage += `\n\nBecause you are a Dungeon Master, you can also use these commands: \n**!e dice {probability of success (from 0 to 100 percent)} "{action}"** - Let fate decide whether an extrajudicial action is successful or not. `;
 			}
 			
 			message.reply(replyMessage);
@@ -180,7 +176,7 @@ module.exports = class Environment {
 				} else {
 					message.reply(`The attempt to ${line[2].content} is successful. `);
 				}
-			}, true);
+			}, true, true);
 		} else {
 			message.reply(`Command not recognized! `);
 		}

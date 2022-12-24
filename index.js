@@ -24,7 +24,7 @@ client.on("ready", async function () {
 			if (user.bot === false) store.getBalance(user.id, balance => console.log(`<@${user.id}> - ${balance} DCP`));
 		});
 		
-		require("node-cron").schedule("* * * * *", () => {
+		require("node-cron").schedule("* * * * * *", () => {
 			store.automaticallyTransact(client, listOfIds);
 		});
 	});

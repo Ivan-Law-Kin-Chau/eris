@@ -15,18 +15,18 @@ module.exports = {
 					const discernString = function (tokenized, string) {
 						const discernItem = function (string) {
 							try {
-								let name = `${string}`;
-								name = name.split("x");
-								delete name[name.length - 1];
-								name = name.join("x");
-								console.log(name);
-								if (!isNaN(parseInt(name))) return [false];
-								
 								let amount = `${string}`;
 								amount = amount.split("x");
 								amount = amount[amount.length - 1];
-								console.log(amount);
 								if (isNaN(parseInt(amount))) return [false];
+								if (!(amount.toString().length > 0)) return [false];
+								
+								let name = `${string}`;
+								name = name.split("x");
+								name = name.slice(0, name.length - 1);
+								name = name.join("x");
+								if (!isNaN(parseInt(name))) return [false];
+								if (!(name.toString().length > 0)) return [false];
 								
 								return [true, amount, name];
 							} catch (error) {
