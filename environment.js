@@ -49,7 +49,7 @@ module.exports = class Environment {
 				}, false, true);
 			}, false);
 			
-			let replyMessage = `Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance** - See your current balance. \n**!e budget** - See the government's current balance. \n**!e give {person} {number}** - Send your DCP to someone. `;
+			let replyMessage = `Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance {person (optional)}** - See your, or someone else's current balance. \n**!e give {person} {number}** - Send your DCP to someone. `;
 			
 			if (version >= 1) {
 				replyMessage += `\n\nBecause you are a President, Judge, Banker, Police Officer or Dungeon Master, you can also use these commands: \n**!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
@@ -65,14 +65,29 @@ module.exports = class Environment {
 			let currentTime = {year: 1984 + Math.floor(daysElapsed / 12), month: 0 + (daysElapsed % 12)};
 			let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			message.reply(`Discordia is currently in ${months[currentTime.month]}, ${currentTime.year}. `);
-		} else if (this.tokenIs(line[0], "balance") && line.length === 1) {
-			this.store.getBalance(message.author.id, function (balance) {
-				message.reply(`Your balance currently is ${balance} DCP. `);
-			});
-		} else if (this.tokenIs(line[0], "budget") && line.length === 1) {
-			this.store.getBalance("-1", function (budget) {
-				message.reply(`The government currently has a total of ${budget} DCP. `);
-			});
+		} else if (this.tokenIs(line[0], "balance") && (line.length >= 1 || line.length <= 2)) {
+			if (line.length === 1) {
+				this.store.getBalance(message.author.id, function (balance) {
+					message.reply(`Your balance currently is ${balance} DCP. `);
+				});
+			} else if (line.length === 2) {
+				if (this.tokenIs(line[1], "1046514022566072371", "role_id")) {
+					this.store.getBalance("-1", function (balance) {
+						message.reply(`The government currently has a total of ${balance} DCP. `);
+					});
+				} else if (this.tokenIs(line[1], "1032097268091867147", "account_id")) {
+					this.store.getBalance("0", function (balance) {
+						message.reply(`Eris currently has a total of undefined DCP. `);
+						message.reply(`Syntax error! `);
+					});
+				} else if (line[1].type === "account_id") {
+					this.store.getBalance(line[1].content, function (balance) {
+						message.reply(`<@${line[1].content}>'s balance currently is ${balance} DCP. `);
+					});
+				} else {
+					message.reply(`Person not found! `);
+				}
+			}
 		} else if (this.tokenIs(line[0], "demo") && line.length === 1) {
 			require(".\/chart.js")(function (dataURL) {
 				message.reply(`https://cingjue.org/bot/charts/${dataURL}`);
