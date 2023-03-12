@@ -28,7 +28,7 @@ module.exports = {
 				let requiredIterations = Math.floor((currentTime - recordTime) / parseInt(rows[i]["cycle_length"]));
 				let totalIterations = Math.floor((parseInt(rows[i]["maximum_time_stamp"]) - parseInt(rows[i]["minimum_time_stamp"])) / parseInt(rows[i]["cycle_length"]));
 				if (rows[i]["current_x"] + requiredIterations > totalIterations) {
-					requiredIterations -= totalIterations - (rows[i]["current_x"] + requiredIterations);
+					requiredIterations -= (rows[i]["current_x"] + requiredIterations) - totalIterations;
 				}
 				
 				if (requiredIterations > 0) {
