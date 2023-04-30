@@ -62,7 +62,7 @@ module.exports = class Environment {
 			message.reply(replyMessage);
 		} else if (this.tokenIs(line[0], "time") && line.length === 1) {
 			let daysElapsed = Math.floor((new Date()).getTime() / 86400000) - 19036;
-			let currentTime = {year: 1984 - 47 + Math.floor(daysElapsed / 12), month: 0 + (daysElapsed % 12)};
+			let currentTime = {year: 1984 + Math.floor(daysElapsed / 12), month: 0 + (daysElapsed % 12)};
 			let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			message.reply(`Discordia is currently in ${months[currentTime.month]}, ${currentTime.year}. `);
 		} else if (this.tokenIs(line[0], "balance") && (line.length >= 1 || line.length <= 2)) {
