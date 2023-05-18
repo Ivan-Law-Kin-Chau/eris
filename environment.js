@@ -61,10 +61,21 @@ module.exports = class Environment {
 			
 			message.reply(replyMessage);
 		} else if (this.tokenIs(line[0], "time") && line.length === 1) {
-			let daysElapsed = Math.floor((new Date()).getTime() / 86400000) - 19036;
+			let unifiedDateObject = new Date();
+			
+			let daysElapsed = Math.floor(unifiedDateObject.getTime() / 86400000) - 19036;
 			let currentTime = {year: 1984 + Math.floor(daysElapsed / 12), month: 0 + (daysElapsed % 12)};
-			let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-			message.reply(`Discordia is currently in ${months[currentTime.month]}, ${currentTime.year}. `);
+			
+			let simulatedDateObject = (new Date(-28800000));
+			simulatedDateObject.setFullYear(currentTime.year);
+			simulatedDateObject.setMonth(currentTime.month);
+			
+			if (simulatedDateObject < unifiedDateObject) {
+				let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+				message.reply(`Discordia is currently in ${months[currentTime.month]}, ${currentTime.year}. `);
+			} else {
+				message.reply(`Discordia is currently in sync with real life, in terms of time. `);
+			}
 		} else if (this.tokenIs(line[0], "balance") && (line.length >= 1 || line.length <= 2)) {
 			if (line.length === 1) {
 				this.store.getBalance(message.author.id, function (balance) {
