@@ -19,7 +19,7 @@ module.exports = class Environment {
 		let authorized = false;
 		
 		if (dungeonMasterMode === false) {
-			// Test if the message author is a President, Judge, Banker, Police Officer or Dungeon Master
+			// Test if the message author is a President, Judge, Accountant, Police Officer or Dungeon Master
 			Object.values(listOfIds.fiscalAuthorizers).forEach(role => {
 				message.guild.roles.cache.get(role).members.forEach(roleMember => {
 					if (roleMember.user.id === message.author.id) authorized = true;
@@ -52,7 +52,7 @@ module.exports = class Environment {
 			let replyMessage = `Here is the list of available commands: \n**!e help** - See this message. \n**!e time** - See the current time in Discordia. \n**!e balance {person (optional)}** - See your, or someone else's current balance. \n**!e give {person} {number}** - Send your DCP to someone. `;
 			
 			if (version >= 1) {
-				replyMessage += `\n\nBecause you are a President, Judge, Banker, Police Officer or Dungeon Master, you can also use these commands: \n**!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
+				replyMessage += `\n\nBecause you are a President, Judge, Accountant, Police Officer or Dungeon Master, you can also use these commands: \n**!e reward {person} {number} "{reason (optional)}"** - Send the government's DCP to people. \n**!e charge {person} {number} "{reason (optional)}"** - Send people's DCP to the government. \n**!e print {number}** - Print new DCP for the government. \n**!e burn {number}** - Burn depreciated DCP held by the government. `;
 			}
 			
 			if (version >= 2) {
