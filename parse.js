@@ -1,8 +1,5 @@
 module.exports = {
 	parse: function (input = "") {
-		// Handle tabs
-		input = input.split("\t").join(" ");
-		
 		// Remove the initial !e
 		input = input.substring(3);
 		
@@ -16,7 +13,33 @@ module.exports = {
 			if (inString === false) {
 				if ((input.charAt(i) === " " || input.charAt(i) === "\n") && start !== null) {
 					const discernString = function (tokenized, string) {
-						if (!isNaN(parseInt(string))) {
+						const discernItem = function (string) {
+							try {
+								let amount = `${string}`;
+								amount = amount.split("x");
+								amount = amount[amount.length - 1];
+								if (isNaN(parseInt(amount))) return [false];
+								if (!(amount.toString().length > 0)) return [false];
+								
+								let name = `${string}`;
+								name = name.split("x");
+								name = name.slice(0, name.length - 1);
+								name = name.join("x");
+								if (!isNaN(parseInt(name))) return [false];
+								if (!(name.toString().length > 0)) return [false];
+								
+								return [true, amount, name];
+							} catch (error) {
+								return [false];
+							}
+						}
+						
+						if (discernItem(string)[0] === true) {
+							tokenized.push({type: "item", content: {
+								amount: discernItem(string)[1], 
+								name: discernItem(string)[2]
+							}});
+						} else if (!isNaN(parseInt(string))) {
 							// If a user deliberately wants an integer to be interpreted as a string instead of an integer, they will have to enclose the string in double quotation marks to avoid this check
 							tokenized.push({type: "integer", content: parseInt(string)});
 						} else {

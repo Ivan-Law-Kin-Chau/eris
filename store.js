@@ -14,7 +14,46 @@ module.exports = {
 			callback(balance);
 		});
 	}, 
-	transact: function (callback, timeStamp, amount, agent, receiver, authorizer = null, name = "DCP") {
+	automaticallyTransact: function (client, listOfIds) {
+		const currentTime = Math.floor((new Date()).getTime());
+		const convertToText = id => {
+			if (id === "-1") return `<@&${listOfIds.governmentID}>`;
+			if (id === "0") return `<@${listOfIds.erisID}>`;
+			return `<@${id}>`;
+		};
+		
+		module.exports.database.all(`SELECT * FROM schedules ORDER BY last_updated DESC`, function (error, rows) {
+			for (let i = 0; i < rows.length; i++) {
+				const recordTime = parseInt(rows[i]["minimum_time_stamp"]) + (parseInt(rows[i]["cycle_length"]) * rows[i]["current_x"]);
+				let requiredIterations = Math.floor((currentTime - recordTime) / parseInt(rows[i]["cycle_length"]));
+				let totalIterations = Math.floor((parseInt(rows[i]["maximum_time_stamp"]) - parseInt(rows[i]["minimum_time_stamp"])) / parseInt(rows[i]["cycle_length"]));
+				if (rows[i]["current_x"] + requiredIterations > totalIterations) {
+					requiredIterations -= (rows[i]["current_x"] + requiredIterations) - totalIterations;
+				}
+				
+				if (requiredIterations > 0) {
+					let x = rows[i]["current_x"];
+					let totalAmount = 0;
+					for (let j = 0; j < requiredIterations; j++) {
+						totalAmount += parseInt(eval(rows[i]["amount"]));
+						x++;
+					}
+					
+					module.exports.database.all(`UPDATE schedules SET current_x = ${x}, last_updated = "${currentTime}" WHERE minimum_time_stamp = "${rows[i]["minimum_time_stamp"]}" AND maximum_time_stamp = "${rows[i]["maximum_time_stamp"]}" AND cycle_length = "${rows[i]["cycle_length"]}"`, function (error) {
+						if (error === null) module.exports.transact(function (value) {
+							if (value === true) {
+								client.channels.cache.get(listOfIds.transferLogs).send(`${convertToText(rows[i]["agent"])} has just transferred ${rows[i]["amount"]} DCP to ${convertToText(rows[i]["receiver"])}, for ${requiredIterations} time${requiredIterations > 1 ? "s" : ""}, due to an automated schedule. `);
+								client.channels.cache.get(listOfIds.transferLogs).send(`**Reason provided: **${rows[i]["reason"]}`);
+							}
+						}, currentTime.toString(), totalAmount, rows[i]["agent"], rows[i]["receiver"], rows[i]["authorizer"], rows[i]["name"], true);
+					});
+					
+					break;
+				}
+			}
+		});
+	}, 
+	transact: function (callback, timeStamp, amount, agent, receiver, authorizer = null, name = "DCP", isAutomated = false) {
 		for (let i = 0; i < module.exports.userList.length; i++) {
 			if ((module.exports.userList[i].id === agent && module.exports.userList[i].bot === true) || (module.exports.userList[i].id === receiver && module.exports.userList[i].bot === true)) {
 				callback(false);
@@ -23,7 +62,7 @@ module.exports = {
 		}
 		
 		authorizer = (authorizer === null) ? `NULL` : `"${authorizer}"`;
-		module.exports.database.all(`INSERT INTO transactions VALUES ("${timeStamp}", ${amount}, "${name}", "${agent}", "${receiver}", ${authorizer})`, function (error, rows) {
+		module.exports.database.all(`INSERT INTO transactions VALUES ("${timeStamp}", ${amount}, "${name}", "${agent}", "${receiver}", ${authorizer}, ${Number(isAutomated)})`, function (error, rows) {
 			if (error) {
 				callback(null);
 			} else {
