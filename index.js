@@ -1,4 +1,5 @@
-const secrets = JSON.parse(require("fs").readFileSync(".\/secrets.json", "utf8"));
+const fs = require("fs");
+const secrets = JSON.parse(fs.readFileSync(".\/secrets.json", "utf8"));
 const listOfIds = secrets.listOfIds;
 
 const Discord = require("discord.js");
@@ -44,10 +45,13 @@ client.on("ready", async function () {
 const Environment = require(".\/environment.js");
 const runtimeEnvironment = new Environment(store);
 
+const PEG = require("pegjs");
+const parser = PEG.generate(fs.readFileSync(".\/parse.pegjs", {encoding: "utf8"}));
+
 client.on("messageCreate", function (message) {
 	if (message.content.startsWith("!e ")) {
 		try {
-			const line = require(".\/parse.js").parse(message.content);
+			const line = parser.parse(message.content);
 			console.log(message.author.id, JSON.stringify(line, "\t", 4));
 			runtimeEnvironment.evaluate(client, message, line, listOfIds);
 		} catch (error) {

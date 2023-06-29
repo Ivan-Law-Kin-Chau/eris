@@ -6,6 +6,7 @@
 		"discord-backup": "^3.0.1",
 		"discord.js": "^13.6.0",
 		"node-cron": "^3.0.2",
+		"pegjs": "^0.10.0",
 		"sqlite3": "^5.1.2"
 	}
 }
